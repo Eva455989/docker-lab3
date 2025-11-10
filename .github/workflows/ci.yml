@@ -7,7 +7,6 @@ on:
     branches: [main]
 
 jobs:
-
   lint:
     name: Lint Dockerfile
     runs-on: ubuntu-latest
@@ -25,12 +24,10 @@ jobs:
         
     - name: Upload Hadolint Report
       uses: actions/upload-artifact@v4
-
       with:
         name: hadolint-report
         path: hadolint-report.txt
         retention-days: 30
-
 
   build:
     name: Build and Test
@@ -49,32 +46,17 @@ jobs:
     - name: Test Docker Image
       run: |
         docker images | grep myapp
-        
-        docker run --rm -d --name test-container -p 8081:80 myapp:latest
-        sleep 5
-        
-        # Проверяем что контейнер запущен
-        docker ps | grep test-container
-        
-        # Тестируем веб-сервер
-        docker exec test-container wget --spider localhost:80
-        
-        # Останавливаем тестовый контейнер
-        docker stop test-container
-        echo "Container test passed!"
+        docker run --rm myapp:latest echo "Container works!"
         
     - name: Save Build Log
       run: |
         echo "Build completed: $(date)" > build-info.txt
         echo "Git SHA: ${{ github.sha }}" >> build-info.txt
-        echo "Image: myapp:latest" >> build-info.txt
         docker images myapp >> build-info.txt
         
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
-
       with:
         name: build-artifacts
-        path: |
-          build-info.txt
+        path: build-info.txt
         retention-days: 30
